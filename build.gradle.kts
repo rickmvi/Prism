@@ -30,16 +30,38 @@ tasks.test {
     useJUnitPlatform()
 }
 
-//mavenPublishing {
-//    publishToMavenCentral()
-//    signAllPublications()
-//
-//    coordinates(group.toString(), "looming", version.toString())
-//
-//    pom {
-//        name.set("Prism")
-//        description.set("I/O Console and formatting library for Java and safely null code")
-//        inceptionYear.set("2025")
-//        url.set()
-//    }
-//}
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    coordinates(group.toString(), "looming", version.toString())
+
+    pom {
+        name.set("Prism")
+        description.set("I/O Console and formatting library for Java and safely null code")
+        inceptionYear.set("2025")
+        url.set("https://github.com/rickmvi/Prism")
+
+        licenses {
+            license {
+                name.set("GNU Lesser General Public License v3.0")
+                url.set("https://www.gnu.org/licenses/lgpl-3.0.html")
+                distribution.set("repo")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("rickmvi")
+                name.set("Rick M. Viana")
+                url.set("https://github.com/rickmvi")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/rickmvi/Prism")
+            connection.set("scm:git:git://github.com/rickmvi/Prism.git")
+            developerConnection.set("scm:git:ssh://git@github.com/rickmvi/Prism.git")
+        }
+    }
+}
