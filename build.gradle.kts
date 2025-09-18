@@ -3,7 +3,7 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
-group = "org.looming.echo"
+group = "io.github.looming-echo"
 version = "1.0.0"
 
 allprojects {
