@@ -1,0 +1,11 @@
+[versions]
+junit = "5.10.0"
+annotation = "26.0.2"
+lombok = "1.18.40"
+jtb = "1.7.7"
+
+[libraries]
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotation" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok"}
+jtoolbox = { module = "io.github.rickmvi:jtoolbox", version.ref = "jtb" }

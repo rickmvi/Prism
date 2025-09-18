@@ -1,0 +1,1037 @@
+package com.github.rickmvi.util;
+
+import com.github.rickmvi.util.constants.Constants;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import com.github.rickmvi.lang.StringFormatter;
+import com.github.rickmvi.control.Repeater;
+import com.github.rickmvi.collections.array.Array;
+
+import java.util.stream.IntStream;
+
+import static com.github.rickmvi.util.ArrayUtils.length;
+import static com.github.rickmvi.control.Condition.ifTrueThrow;
+
+public class MathOperations {
+
+    /**
+     * Calculates the sum of an array of byte values.
+     * Uses {@link Math#addExact} to ensure no overflow occurs during addition.
+     *
+     * @param numbers an array of byte values to be summed; must not be null
+     * @return the sum of the provided byte values
+     * @throws NullPointerException if the numbers array is null
+     * @throws ArithmeticException if the result overflows the byte range
+     */
+    public static byte sumByte(byte @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0;
+
+        byte result = 0;
+        for (byte number : numbers) {
+            result = (byte) Math.addExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of the given short numbers. This method uses an exact
+     * addition and will throw an exception if overflow occurs.
+     *
+     * @param numbers an array of short values to be summed; must not be null.
+     * @return the sum of the provided short numbers.
+     * @throws NullPointerException if the {@code numbers} array is null.
+     * @throws ArithmeticException if the sum overflows the range of the {@code short} type.
+     */
+    public static short sumShort(short @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0;
+
+        short result = 0;
+        for (short number : numbers) {
+            result = (short) Math.addExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of a variable number of {@code int} values.
+     *
+     * @param numbers the integers to be summed; must not be null. If no values are provided, the result is 0.
+     * @return the sum of the provided numbers
+     * @throws NullPointerException if the {@code numbers} array is null
+     * @throws ArithmeticException if an integer overflow occurs while computing the sum
+     */
+    public static int sumInt(int @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0;
+
+        int result = 0;
+        for (int number : numbers) {
+            result = Math.addExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of a variable number of {@code long} values.
+     *
+     * @param numbers the {@code long} values to be summed; must not be {@code null}.
+     *                If no values are provided, the result is 0.
+     * @return the sum of the provided {@code long} values.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if a numeric overflow occurs while computing the sum.
+     */
+    public static long sumLong(long @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0L;
+
+        long result = 0L;
+        for (long number : numbers) {
+            result = Math.addExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of a variable number of {@code float} values.
+     *
+     * @param numbers the {@code float} values to be summed; must not be {@code null}.
+     *                If no values are provided, the result is 0.0f.
+     * @return the sum of the provided {@code float} values.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if the sum operation results in an overflow, or if
+     *         a non-numeric (NaN) value is encountered during the computation.
+     */
+    public static float sumFloat(float @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0.0f;
+
+        float result = 0.0f;
+        for (float number : numbers) {
+            result += number;
+
+            ifTrueThrow(Float.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUM_OVERFLOW)
+            );
+            ifTrueThrow(Float.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "float"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of a variable number of {@code double} values.
+     *
+     * @param numbers the {@code double} values to be summed; must not be {@code null}.
+     *                If no values are provided, the result is {@code 0.0}.
+     * @return the sum of the provided {@code double} values.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if the sum operation results in an overflow, or if
+     *                             a non-numeric (NaN) value is encountered during the computation.
+     */
+    public static double sumDouble(double @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0.0d;
+
+        double result = 0.0d;
+        for (double number : numbers) {
+            result += number;
+
+            ifTrueThrow(Double.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUM_OVERFLOW)
+            );
+            ifTrueThrow(Double.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "double"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Subtracts all provided byte numbers in sequence and returns the result.
+     * The subtraction starts with the first element of the array, and each later
+     * number is subtracted from the current result.
+     *
+     * @param numbers A varargs array of byte values to be subtracted. Must not be null.
+     * @return The result of subtracting all the provided numbers in a sequence.
+     *         Returns 0 if the array is empty.
+     * @throws NullPointerException If the input array is null.
+     * @throws ArithmeticException If an arithmetic overflow occurs during subtraction.
+     */
+    public static byte subtractByte(byte @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0;
+        int length = length(numbers);
+        byte result = numbers[0];
+        for (int i = 1; i < length; i++) {
+            result = (byte) Math.subtractExact(result, numbers[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Subtracts a series of short numbers provided as varargs and returns the result.
+     * <p>
+     * The method starts with the first element of the array as the initial value
+     * and then subtracts each later number in the array from the result.
+     *
+     * @param numbers An array of short numbers to be subtracted.
+     *                Must not be null and must contain at least one element.
+     * @return The result of sequentially subtracting all the numbers.
+     * @throws NullPointerException If the input array is null.
+     * @throws ArithmeticException If the subtraction results in underflow or overflow for the short type.
+     */
+    public static short subtractShort(short @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0;
+        int length = length(numbers);
+        short result = numbers[0];
+        for (int i = 1; i < length; i++) {
+            result = (short) Math.subtractExact(result, numbers[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the result of subtracting a variable number of {@code int} values.
+     * The subtraction is performed in the order the numbers are provided.
+     *
+     * @param numbers the integers to be subtracted; must not be {@code null}.
+     *                If no values are provided, the result is {@code 0}.
+     * @return the result of subtracting the provided integers in sequence.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if an integer overflow occurs during subtraction.
+     */
+    public static int subtractInt(int @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0;
+        int length = length(numbers);
+        int result = numbers[0];
+        for (int i = 1; i < length; i++) {
+            result = Math.subtractExact(result, numbers[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the result of subtracting a variable number of {@code long} values.
+     * The subtraction is performed in the order the numbers are provided.
+     *
+     * @param numbers the {@code long} values to be subtracted; must not be {@code null}.
+     *                If no values are provided, the result is {@code 0}.
+     * @return the result of subtracting the provided {@code long} values in sequence.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if a numeric overflow occurs during subtraction.
+     */
+    public static long subtractLong(long @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0L;
+        int length = length(numbers);
+        long result = numbers[0];
+        for (int i = 1; i < length; i++) {
+            result = Math.subtractExact(result, numbers[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the result of subtracting a variable number of {@code float} values.
+     * The subtraction is performed sequentially in the order the numbers are provided.
+     *
+     * @param numbers the {@code float} values to be subtracted; must not be {@code null}.
+     *                If no values are provided, the result is {@code 0.0f}.
+     * @return the result of subtracting the provided {@code float} values in sequence.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if the subtraction results in an infinite value, or if
+     *                             a non-numeric (NaN) value is encountered during the computation.
+     */
+    public static float subtractFloat(float @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0.0f;
+        int length = length(numbers);
+        float result = numbers[0];
+        for (int i = 1; i < length; i++) {
+            result -= numbers[i];
+
+            ifTrueThrow(Float.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUBTRACT_OVERFLOW));
+            ifTrueThrow(Float.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "float"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Computes the result of subtracting a variable number of {@code double} values.
+     * The subtraction is performed sequentially in the order the numbers are provided.
+     *
+     * @param numbers an array of {@code double} values to be subtracted; must not be {@code null}.
+     *                If no values are provided, the result is {@code 0.0}.
+     * @return the result of subtracting the provided {@code double} values in sequence.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if the subtraction results in an infinite value, or if
+     *                             a non-numeric (NaN) value is encountered during the computation.
+     */
+    public static double subtractDouble(double @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 0.0;
+        int length = length(numbers);
+        double result = numbers[0];
+        for (int i = 1; i < length; i++) {
+            result -= numbers[i];
+
+            ifTrueThrow(Double.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUBTRACT_OVERFLOW));
+            ifTrueThrow(Double.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "double"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Multiplies all the given byte numbers and returns the product.
+     *
+     * @param numbers an array of byte numbers to be multiplied; must not be null
+     * @return the product of all byte numbers provided
+     * @throws IllegalArgumentException if the input array is null
+     * @throws ArithmeticException if an overflow occurs during multiplication
+     */
+    public static byte mutiplyByte(byte @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 1;
+
+        byte result = 1;
+        for (byte number : numbers) {
+            result = (byte) Math.multiplyExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Multiplies a series of numbers and returns their product.
+     *
+     * @param numbers an array of short numbers to be multiplied. Must not be null.
+     * @return the product of the given numbers as a short value. Returns 1 if the array is empty.
+     * @throws NullPointerException if the input array is null.
+     * @throws ArithmeticException if an overflow occurs during multiplication.
+     */
+    public static short mutiplyShort(short @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 1;
+
+        short result = 1;
+        for (short number : numbers) {
+            result = (short) Math.multiplyExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Multiplies a variable number of {@code int} values.
+     * If no values are provided, the result is {@code 1}.
+     *
+     * @param numbers the integers to be multiplied; must not be {@code null}.
+     *                If no values are provided, the result is {@code 1}.
+     * @return the product of the provided integers.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if an integer overflow occurs during multiplication.
+     */
+    public static int multiplyInt(int @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 1;
+
+        int result = 1;
+        for (int number : numbers) {
+            result = Math.multiplyExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the product of a variable number of {@code long} values.
+     * If no values are provided, the result is {@code 1}.
+     *
+     * @param numbers the {@code long} values to be multiplied; must not be {@code null}.
+     *                If no values are provided, the result is {@code 1}.
+     * @return the product of the provided {@code long} values.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if a numeric overflow occurs during multiplication.
+     */
+    public static long multiplyLong(long @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 1L;
+
+        long result = 1L;
+        for (long number : numbers) {
+            result = Math.multiplyExact(result, number);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the product of a variable number of {@code float} values. If no values
+     * are provided, the result is {@code 1.0f}.
+     *
+     * @param numbers the {@code float} values to be multiplied; must not be {@code null}.
+     *                If no values are provided, the result is {@code 1.0f}.
+     * @return the product of the provided {@code float} values.
+     * @throws NullPointerException if the {@code numbers} array is {@code null}.
+     * @throws ArithmeticException if the multiplication results in an infinite value, or
+     *                             if a non-numeric (NaN) value is encountered during the computation.
+     */
+    public static float multiplyFloat(float @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 1.0f;
+
+        float result = 1.0f;
+        for (float number : numbers) {
+            result *= number;
+
+            ifTrueThrow(
+                    Float.isInfinite(result),
+                    () -> new ArithmeticException(Constants.PRODUCT_OVERFLOW)
+            );
+            ifTrueThrow(
+                    Float.isNaN(result),
+                    () -> new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "float"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Multiplies a variable number of double values and returns the product.
+     * If no values are provided, the method returns 1.0 as the neutral element
+     * of multiplication. Throws an exception if the calculation results in an
+     * infinity or a NaN value.
+     *
+     * @param numbers A varargs parameter representing the numbers to be multiplied.
+     *                Must not be null but can be empty.
+     * @return The product of the provided numbers. If no numbers are provided,
+     *         the method returns 1.0.
+     * @throws ArithmeticException If the product results in a value of infinity
+     *                              or NaN due to overflow or invalid operations.
+     */
+    public static double multiplyDouble(double @NotNull ... numbers) {
+        if (Array.isEmpty(numbers)) return 1.0;
+
+        double result = 1.0;
+        for (double number : numbers) {
+            result *= number;
+
+            ifTrueThrow(
+                    Double.isInfinite(result),
+                    () -> new ArithmeticException(Constants.PRODUCT_OVERFLOW)
+            );
+            ifTrueThrow(
+                    Double.isNaN(result),
+                    () -> new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "double"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Divides one byte value by another.
+     * <p>
+     * This method performs division of the specified dividend by the specified divisor
+     * and returns the result as a byte. If the divisor is zero, an {@code ArithmeticException}
+     * is thrown to indicate a division by zero error.
+     *
+     * @param dividend the byte value to be divided (numerator)
+     * @param divisor the byte value by which to divide (denominator)
+     * @return the result of the division as a byte
+     * @throws ArithmeticException if the divisor is zero
+     */
+    public static byte divideByte(byte dividend, byte divisor) {
+        ifTrueThrow(Primitives.isZero(divisor), () -> new ArithmeticException(Constants.DIVISION_BY_ZERO));
+        return (byte) Math.divideExact(dividend, divisor);
+    }
+
+    /**
+     * Divides the given dividend by the divisor and returns the result as a short.
+     *
+     * @param dividend the number to be divided
+     * @param divisor the number by which the dividend is divided
+     * @return the result of the division as a short
+     * @throws ArithmeticException if the divisor is zero
+     */
+    public static short divideShort(short dividend, short divisor) {
+        ifTrueThrow(Primitives.isZero(divisor), () -> new ArithmeticException(Constants.DIVISION_BY_ZERO));
+        return (short) Math.divideExact(dividend, divisor);
+    }
+
+    /**
+     * Divides the given dividend by the divisor, ensuring that division by zero
+     * does not occur.
+     *
+     * @param dividend The number to be divided.
+     * @param divisor The number by which the dividend is to be divided.
+     * @return The integer result of the division.
+     * @throws ArithmeticException If the divisor is zero.
+     */
+    public static int divideInt(int dividend, int divisor) {
+        ifTrueThrow(Primitives.isZero(divisor), () -> new ArithmeticException(Constants.DIVISION_BY_ZERO));
+        return Math.divideExact(dividend, divisor);
+    }
+
+    /**
+     * Divides the given dividend by the specified divisor and returns the result.
+     *
+     * @param dividend the number to be divided
+     * @param divisor the number by which the dividend is to be divided
+     * @return the result of dividing the dividend by the divisor
+     * @throws ArithmeticException if the divisor is zero
+     */
+    public static long divideLong(long dividend, long divisor) {
+        ifTrueThrow(Primitives.isZero(divisor), () -> new ArithmeticException(Constants.DIVISION_BY_ZERO));
+        return Math.divideExact(dividend, divisor);
+    }
+
+    public static float divideFloat(float dividend, float divisor) {
+        return (float) divideDouble(dividend, divisor);
+    }
+
+    public static double divideDouble(double dividend, double divisor) {
+        ifTrueThrow(Primitives.isZero(divisor), () -> new ArithmeticException(Constants.DIVISION_BY_ZERO));
+        return dividend / divisor;
+    }
+
+    /**
+     * Divides the given dividend by the divisor after adjusting the dividend to the nearest smaller number
+     * that is evenly divisible by the divisor.
+     *
+     * @param dividend the number to be divided; the method will find the nearest smaller number that is divisible
+     *                 by the divisor if the dividend itself is not divisible.
+     * @param divisor the number by which the adjusted dividend will be divided; must not be zero.
+     * @return the result of the division after adjusting the dividend to the nearest smaller divisible number.
+     * @throws ArithmeticException if the divisor is zero or if an overflow occurs while searching for the
+     *                             nearest divisible number.
+     */
+    public static int divideNearestMultipleInt(int dividend, int divisor) {
+        ifTrueThrow(Primitives.isZero(divisor), () -> new ArithmeticException(Constants.DIVISION_BY_ZERO));
+
+        final int[] result = { dividend };
+        Repeater.whileTrue(
+                () -> result[0] % divisor != 0,
+                () -> {
+                    ifTrueThrow(
+                            result[0] == Integer.MIN_VALUE,
+                            () -> new ArithmeticException(Constants.OVERFLOW_DIVISIBLE_NUMBER)
+                    );
+                    result[0]--;
+                });
+        return result[0] / divisor;
+    }
+
+    /**
+     * Computes the average of the given array of numbers. The method expects at least one number
+     * to be present in the array. An exception is thrown if the array is empty.
+     *
+     * @param numbers an array of numbers for which the average is to be calculated; must not be null
+     * @return the average of the provided numbers as a double value
+     * @throws ArithmeticException if the input array is empty
+     */
+    public static double averageDouble(long @NotNull ... numbers) {
+        ifTrueThrow(
+                Array.isEmpty(numbers),
+                () -> new ArithmeticException(Constants.AVERAGE_EMPTY_ARRAY)
+        );
+        return (double) sumLong(numbers) / length(numbers);
+    }
+
+    /**
+     * Computes the average of a given array of float numbers.
+     *
+     * @param numbers A non-null array of float numbers. Must not be empty.
+     * @return The average value of the provided numbers.
+     * @throws ArithmeticException If the provided array is empty.
+     */
+    public static float averageFloat(float @NotNull ... numbers) {
+        ifTrueThrow(
+                Array.isEmpty(numbers),
+                () -> new ArithmeticException(Constants.AVERAGE_EMPTY_ARRAY)
+        );
+        return sumFloat(numbers) / length(numbers);
+    }
+
+    /**
+     * Calculates the average of a given set of integers.
+     *
+     * @param numbers the integers to be averaged; must not be null. Passing an empty array results in an exception.
+     * @return the average value of the provided integers as a double.
+     * @throws ArithmeticException if the input array is empty.
+     */
+    public static double averageInt(int @NotNull ... numbers) {
+        ifTrueThrow(
+                Array.isEmpty(numbers),
+                () -> new ArithmeticException(Constants.AVERAGE_EMPTY_ARRAY)
+        );
+        return (double) sumInt(numbers) / length(numbers);
+    }
+
+    /**
+     * Computes the average of the provided array of double values.
+     *
+     * @param numbers the array of double values to compute the average of; must not be null.
+     * @return the average of the values in the array.
+     * @throws ArithmeticException if the array is empty.
+     * @throws NullPointerException if the array is null.
+     */
+    public static double averageDouble(double @NotNull ... numbers) {
+        ifTrueThrow(
+                Array.isEmpty(numbers),
+                () -> new ArithmeticException(Constants.AVERAGE_EMPTY_ARRAY)
+        );
+        return sumDouble(numbers) / length(numbers);
+    }
+
+    /**
+     * Calculates the sum of all even numbers from 0 to the given byte value inclusively.
+     *
+     * @param number the upper limit up to which even numbers are summed must be within the valid byte range.
+     * @return the sum of all even numbers from 0 to the provided limit as a byte.
+     * @throws ArithmeticException if the sum exceeds the range of the byte type.
+     */
+    @Contract(pure = true)
+    public static byte evenByte(byte number) {
+        byte valid = Primitives.requiredNonNegative(number);
+        byte result = 0;
+        for (int i = 0; i <= valid; i += 2) {
+            result = (byte) Math.addExact(result, i);
+        }
+        return result;
+    }
+
+    /**
+     * Calculates the sum of all odd integers from 1 up to the given number.
+     *
+     * @param number the inclusive upper bound up to which odd numbers are summed.
+     *               Must be a non-negative byte value.
+     * @return the sum of all odd integers from 1 to the specified number.
+     * @throws ArithmeticException if an integer overflow occurs during the summation process.
+     */
+    @Contract(pure = true)
+    public static byte oddByte(byte number) {
+        byte valid = Primitives.requiredPositive(number);
+        byte result = 0;
+        for (int i = 1; i <= valid; i += 2) {
+            result = (byte) Math.addExact(result, i);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of all even short integers from 0 up to and including
+     * the specified number.
+     *
+     * @param number the upper bound short value up to which even numbers
+     *               will be summed
+     * @return the sum of all even short integers from 0 to the specified number
+     * @throws ArithmeticException if an arithmetic overflow occurs during the summation
+     */
+    @Contract(pure = true)
+    public static short evenShort(short number) {
+        short valid = Primitives.requiredNonNegative(number);
+        short result = 0;
+        for (int i = 0; i <= valid; i += 2) {
+            result = (short) Math.addExact(result, i);
+        }
+        return result;
+    }
+
+    /**
+     * Calculates the sum of all odd numbers from 0 to the given number (inclusive).
+     *
+     * @param number the upper bound to calculate the sum of odd numbers; must be a non-negative short value.
+     * @return the sum of all odd numbers from 0 to the specified number (inclusive).
+     * @throws ArithmeticException if the sum exceeds the range of the {@code short} type.
+     */
+    @Contract(pure = true)
+    public static short oddShort(short number) {
+        short valid = Primitives.requiredPositive(number);
+        short result = 0;
+        for (int i = 1; i <= valid; i += 2) {
+            result = (short) Math.addExact(result, i);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of all even integers from 0 up to and including the given number.
+     *
+     * @param number the upper limit (inclusive) up to which the sum of even integers is calculated
+     * @return the sum of all even integers from 0 to the specified number
+     * @throws ArithmeticException if an integer overflow occurs during the computation
+     */
+    @Contract(pure = true)
+    public static int evenInt(int number) {
+        int valid = Primitives.requiredNonNegative(number);
+        return IntStream.rangeClosed(0, valid).filter(Primitives::isEven).sum();
+    }
+
+    /**
+     * Calculates the sum of all odd integers from 1 up to and including the specified number.
+     * If the number is lower than 1, the return value will be 0.
+     *
+     * @param number the upper bound up to which odd integers will be summed, inclusive
+     * @return the sum of all odd integers from 1 to the given number, inclusive
+     * @throws ArithmeticException if an integer overflow occurs during the calculation
+     */
+    @Contract(pure = true)
+    public static int oddInt(int number) {
+        int valid = Primitives.requiredPositive(number);
+        return IntStream.rangeClosed(1, valid).filter(Primitives::isOdd).sum();
+    }
+
+    /**
+     * Calculates the sum of all even numbers from 0 up to and including the specified number.
+     *
+     * @param number The upper limit up to which even numbers are summed. Must be a non-negative value.
+     * @return The sum of all even numbers from 0 to the specified number.
+     * @throws ArithmeticException If the result overflows a {@code long}.
+     */
+    @Contract(pure = true)
+    public static long evenLong(long number) {
+        long valid = Primitives.requiredNonNegative(number);
+        long result = 0L;
+        for (long i = 0; i <= valid; i += 2) {
+            result = Math.addExact(result, i);
+        }
+        return result;
+    }
+
+    /**
+     * Calculates the sum of all odd numbers from 1 up to and including the specified number.
+     *
+     * @param number the upper limit up to which odd numbers are summed, inclusive
+     * @return the sum of all odd numbers between 1 and the specified number, inclusive
+     * @throws ArithmeticException if the sum overflows a {@code long}
+     */
+    @Contract(pure = true)
+    public static long oddLong(long number) {
+        long valid = Primitives.requiredPositive(number);
+        long result = 0L;
+        for (long i = 1; i <= valid; i += 2) {
+            result = Math.addExact(result, i);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of all even integers from 0 up to and including the given number
+     * (if the number itself is even) and returns the result as a floating-point value.
+     *
+     * @param number the upper bound up to which even numbers are summed (inclusive if even)
+     * @return the sum of all even integers from 0 to the specified number as a float
+     * @throws ArithmeticException if the computed sum overflows to infinity or results in NaN
+     */
+    @Contract(pure = true)
+    public static float evenFloat(int number) {
+        int valid = Primitives.nonNegativeNonZero(number);
+        float result = 0f;
+        for (int i = 0; i <= valid; i += 2) {
+            result += i;
+            ifTrueThrow(Float.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUM_OVERFLOW)
+            );
+            ifTrueThrow(Float.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "float"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Calculates the sum of all odd integers from 1 up to the given number, returning the result as a float.
+     * Ensures the computed sum does not result in overflow or NaN conditions.
+     *
+     * @param number the upper limit for summing odd integers; must be a non-negative integer.
+     * @return the sum of all odd integers from 1 up to the given number as a float.
+     * @throws ArithmeticException if the resulting sum overflows the float range or if a NaN value is encountered.
+     */
+    @Contract(pure = true)
+    public static float oddFloat(int number) {
+        int valid = Primitives.requiredPositive(number);
+        float result = 0f;
+        for (int i = 1; i <= valid; i += 2) {
+            result += i;
+            ifTrueThrow(Float.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUM_OVERFLOW)
+            );
+            ifTrueThrow(Float.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "float"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Computes the sum of all even numbers from 0 to the specified number (inclusive) and returns the result as a double.
+     *
+     * @param number the maximum number up to which even numbers will be summed, inclusive
+     * @return the sum of all even numbers from 0 to {@code number} as a double
+     * @throws ArithmeticException if the resulting sum overflows or produces an invalid double value (e.g., NaN)
+     */
+    @Contract(pure = true)
+    public static double evenDouble(long number) {
+        long valid = Primitives.requiredNonNegative(number);
+        double result = 0;
+        for (long i = 0; i <= valid; i += 2) {
+            result += i;
+            ifTrueThrow(Double.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUM_OVERFLOW)
+            );
+            ifTrueThrow(Double.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "double"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Calculates the sum of all odd numbers from 1 up to the specified number
+     * and returns the result as a double.
+     * Throws an exception if overflow or invalid operations occur during the sum.
+     *
+     * @param number the upper bound (inclusive) up to which odd numbers are summed
+     * @return the sum of all odd numbers from 1 up to the specified number
+     * @throws ArithmeticException if the summation results in a value that is infinite or NaN
+     */
+    @Contract(pure = true)
+    public static double oddDouble(long number) {
+        long valid = Primitives.requiredPositive(number);
+        double result = 0;
+        for (long i = 1; i <= valid; i += 2) {
+            result += i;
+            ifTrueThrow(Double.isInfinite(result), () ->
+                    new ArithmeticException(Constants.SUM_OVERFLOW)
+            );
+            ifTrueThrow(Double.isNaN(result), () ->
+                    new ArithmeticException(
+                            StringFormatter.format(Constants.INVALID_OPERATION, "double"))
+            );
+        }
+        return result;
+    }
+
+    /**
+     * Calculates the remainder of the division between the given dividend and divisor.
+     *
+     * @param dividend the number to be divided
+     * @param divisor the number by which the dividend is divided
+     * @return the remainder of the division
+     * @throws ArithmeticException if the divisor is zero
+     */
+    @Contract(pure = true)
+    public static int moduloInt(int dividend, int divisor) {
+        return (int) moduloLong(dividend, divisor);
+    }
+
+    /**
+     * Computes the remainder when the divisor divides the dividend.
+     * The operation adheres to the mathematical definition of modulo,
+     * ensuring valid computation unless the divisor is zero.
+     *
+     * @param dividend The number to be divided.
+     * @param divisor The number by which the dividend is divided.
+     *                Must not be zero.
+     * @return The remainder after dividing the dividend by the divisor.
+     * @throws ArithmeticException If the divisor is zero.
+     */
+    @Contract(pure = true)
+    public static long moduloLong(long dividend, long divisor) {
+        ifTrueThrow(Primitives.isZero(divisor), () -> new ArithmeticException(Constants.DIVISION_BY_ZERO));
+        return dividend % divisor;
+    }
+
+    /**
+     * Calculates and returns the modulo of the nearest number less than or equal
+     * to the given dividend that is divisible by the specified divisor. The method
+     * ensures the dividend is non-negative and performs the operation iteratively.
+     *
+     * @param dividend the number to be reduced to the nearest multiple of the divisor;
+     *                 must be non-negative
+     * @param divisor the number by which to find the nearest multiple; must be positive
+     * @return the modulo of the nearest divisible number less than or equal to the dividend
+     * @throws ArithmeticException if the dividend is negative or underflow occurs
+     *                             while searching for the nearest divisible number
+     */
+    public static int moduloNearestMultiple(int dividend, int divisor) {
+        ifTrueThrow(Primitives.isNegative(dividend), () -> new ArithmeticException(Constants.DIVIDEND_NEGATIVE));
+        ifTrueThrow(Primitives.isNonPositive(divisor), () -> new ArithmeticException(Constants.DIVISOR_BE_POSITIVE));
+
+        final int[] result = { dividend };
+        Repeater.whileTrue(
+                () -> result[0] % divisor != 0,
+                () -> {
+                    ifTrueThrow(
+                            result[0] == Integer.MAX_VALUE,
+                            () -> new ArithmeticException(Constants.OVERFLOW_DIVISIBLE_NUMBER)
+                    );
+                    result[0]--;
+                });
+        return result[0] % divisor;
+    }
+
+    /**
+     * Computes the modulo operation for the nearest multiple of the divisor
+     * that is less than or equal to the given dividend. The method ensures
+     * that the dividend is adjusted downwards until a number is found that
+     * is divisible by the divisor.
+     *
+     * @param dividend the value for which the nearest multiple of the divisor
+     *                 is to be found. Must be non-negative.
+     * @param divisor the value by which the dividend is to be divided.
+     * @return the remainder when the nearest divisible number (less than or
+     *         equal to the dividend) is divided by the divisor.
+     * @throws ArithmeticException if the dividend is negative or if the
+     *         search results in underflow.
+     */
+    public static long moduloNearestMultiple(long dividend, long divisor) {
+        ifTrueThrow(dividend < 0L, () -> new ArithmeticException(Constants.DIVIDEND_NEGATIVE));
+
+        final long[] result = { dividend };
+        Repeater.whileTrue(
+                () -> result[0] % divisor != 0L,
+                () -> {
+                    ifTrueThrow(
+                            result[0] == Long.MAX_VALUE,
+                            () -> new ArithmeticException(Constants.OVERFLOW_DIVISIBLE_NUMBER)
+                    );
+                    result[0]--;
+                });
+        return result[0] % divisor;
+    }
+
+    /**
+     * Computes the greatest common divisor (GCD) of two integers using the Euclidean algorithm.
+     *
+     * @param a the first integer
+     * @param b the second integer
+     * @return the greatest common divisor of {@code a} and {@code b}
+     * @throws ArithmeticException if both {@code a} and {@code b} are zero, as GCD is undefined in that case
+     */
+    @Contract(pure = true)
+    public static int gcd(int a, int b) {
+        if (Primitives.isZero(a)) return b;
+        if (Primitives.isZero(b)) return a;
+
+        int r = a % b;
+        if (Primitives.isZero(r)) return b;
+
+        return gcd(b, r);
+    }
+
+    /**
+     * Computes the least common multiple (LCM) of two integers.
+     *
+     * @param a the first integer; can be positive, negative, or zero
+     * @param b the second integer; can be positive, negative, or zero
+     * @return the least common multiple of the two integers, or 0 if either integer is 0
+     * @throws ArithmeticException if the computation results in an integer overflow
+     */
+    @Contract(pure = true)
+    public static int lcm(int a, int b) {
+        if (Primitives.isZero(a) || Primitives.isZero(b)) return 0;
+        return Math.abs(a / gcd(a, b) * b);
+    }
+
+    /**
+     * Calculates base^exponent using exponentiation by squaring (O(log n)).
+     *
+     * @param base     the base value
+     * @param exponent the non-negative exponent
+     * @return the result of base raised to exponent
+     * @throws ArithmeticException if the exponent is negative or if an overflow occurs
+     */
+    @Contract(pure = true)
+    public static int pow(int base, int exponent) {
+        ifTrueThrow(Primitives.isNegative(exponent), () -> new ArithmeticException(Constants.NEGATIVE_EXPONENT));
+        return powerBySquaring(base, exponent);
+    }
+
+    /**
+     * Calculates base^exponent using exponentiation by squaring (O(log n)).
+     *
+     * @param base     the base value
+     * @param exponent the non-negative exponent (long)
+     * @return the result of base raised to exponent
+     * @throws ArithmeticException if the exponent is negative or if an overflow occurs
+     */
+    @Contract(pure = true)
+    public static int pow(int base, long exponent) {
+        ifTrueThrow(Primitives.isNegative(exponent), () -> new ArithmeticException(Constants.NEGATIVE_EXPONENT));
+        return powerBySquaring(base, exponent);
+    }
+
+    @ApiStatus.Internal
+    private static int powerBySquaring(int base, long exponent) {
+        int result = 1;
+        result = computePower(exponent, result, base);
+
+        return result;
+    }
+
+    @ApiStatus.Internal
+    private static int computePower(long exponent, int result, int b) {
+        while (Primitives.isPositive(exponent)) {
+            if (Primitives.isOdd(exponent)) {
+                result = Math.multiplyExact(result, b);
+            }
+            exponent >>= 1;
+            if (Primitives.isPositive(exponent)) {
+                b = Math.multiplyExact(b, b);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Calculates the value of a base raised to the power of an exponent.
+     * This method ensures that the exponent is non-negative and checks
+     * for potential overflow or invalid results in the computation.
+     *
+     * @param base the base number to be raised to the specified power
+     * @param exponent the exponent to which the base will be raised; must be non-negative
+     * @return the calculated result of the base raised to the power of the exponent
+     * @throws ArithmeticException if the exponent is negative
+     * @throws ArithmeticException if the result of the exponentiation is infinite or invalid
+     */
+    public static double pow(double base, double exponent) {
+        ifTrueThrow(Primitives.isNegative(exponent), () -> new ArithmeticException(Constants.NEGATIVE_EXPONENT));
+
+        double result = Math.pow(base, exponent);
+
+        ifTrueThrow(Double.isInfinite(result), () -> new ArithmeticException(Constants.NEGATIVE_EXPONENT));
+        ifTrueThrow(Double.isNaN(result), () -> new ArithmeticException(Constants.INVALID_EXPONENTIATION));
+        return result;
+    }
+
+    /**
+     * Computes the integer square root of a non-negative integer value.
+     * The result is the largest integer less than or equal to the true square root.
+     *
+     * @param value the integer value for which the square root is to be computed. Must be non-negative.
+     * @return the integer square root of the given value.
+     * @throws ArithmeticException if the input value is negative.
+     */
+    @Contract(pure = true)
+    public static int sqrtInt(int value) {
+        ifTrueThrow(Primitives.isNegative(value), () -> new ArithmeticException(Constants.NEGATIVE_VALUE));
+        return (int) Math.round(Math.sqrt(value));
+    }
+
+    /**
+     * Calculates the square root of a given non-negative value.
+     *
+     * @param value the value for which the square root is to be calculated.
+     *              Must be a non-negative number.
+     * @return the square root of the given value.
+     * @throws ArithmeticException if the given value is negative.
+     */
+    @Contract(pure = true)
+    public static double sqrt(double value) {
+        ifTrueThrow(Primitives.isNegative(value), () -> new ArithmeticException(Constants.NEGATIVE_VALUE));
+        return Math.sqrt(value);
+    }
+
+}
