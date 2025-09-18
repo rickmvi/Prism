@@ -34,7 +34,7 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 
-    coordinates(group.toString(), "looming", version.toString())
+    coordinates(group.toString(), "prism", version.toString())
 
     pom {
         name.set("Prism")
