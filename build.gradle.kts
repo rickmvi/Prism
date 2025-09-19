@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.looming-echo"
-version = "1.0.0"
+version = "1.0.1"
 
 allprojects {
     group = rootProject.group
@@ -12,8 +12,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-
-    apply(plugin = "java")
 }
 
 subprojects {
@@ -23,11 +21,28 @@ subprojects {
         testImplementation(platform("org.junit:junit-bom:5.10.0"))
         testImplementation("org.junit.jupiter:junit-jupiter")
     }
-
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.register<Jar>("uberJar") {
+    archiveBaseName.set("prism")
+    archiveVersion.set(version.toString())
+
+    from(subprojects.map { it.the<SourceSetContainer>()["main"].output })
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes["Implementation-Title"] = "Prism API"
+        attributes["Implementation-Version"] = version
+        attributes["Automatic-Module-Name"] = "io.github.looming_echo.prism"
+    }
+}
+
+artifacts {
+    add("archives", tasks.named("uberJar"))
 }
 
 mavenPublishing {
